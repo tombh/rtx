@@ -257,6 +257,7 @@ impl Toolset {
             .filter(|v| v.is_installed())
             .collect()
     }
+    #[tracing::instrument(skip_all)]
     pub fn env(&self, config: &Config) -> IndexMap<String, String> {
         let mut entries: IndexMap<String, String> = self
             .list_current_installed_versions()

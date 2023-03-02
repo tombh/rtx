@@ -37,6 +37,7 @@ pub struct Config {
 }
 
 impl Config {
+    #[tracing::instrument]
     pub fn load() -> Result<Self> {
         let plugins = load_plugins()?;
         let rtxrc = load_rtxrc()?;

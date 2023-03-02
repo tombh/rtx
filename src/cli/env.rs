@@ -27,6 +27,7 @@ pub struct Env {
 }
 
 impl Command for Env {
+    #[tracing::instrument(skip_all)]
     fn run(self, config: Config, out: &mut Output) -> Result<()> {
         let ts = ToolsetBuilder::new()
             .with_install_missing()

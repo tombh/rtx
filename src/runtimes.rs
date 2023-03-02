@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::env::split_paths;
-use std::fmt::{Display, Formatter};
+use std::fmt::{Debug, Display, Formatter};
 use std::fs::{create_dir_all, remove_dir_all, File};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -26,7 +26,7 @@ use crate::{dirs, env, fake_asdf, file};
 
 /// These represent individual plugin@version pairs of runtimes
 /// installed to ~/.local/share/rtx/runtimes
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct RuntimeVersion {
     pub version: String,
     pub plugin: Arc<Plugin>,
@@ -201,6 +201,7 @@ impl RuntimeVersion {
         Ok(())
     }
 
+    #[tracing::instrument]
     pub fn exec_env(&self) -> Result<&HashMap<String, String>> {
         self.exec_env_cache.get_or_try_init(|| {
             let script = self.plugin.plugin_path.join("bin/exec-env");
@@ -262,10 +263,14 @@ impl Display for RuntimeVersion {
         write!(f, "{}@{}", self.plugin.name, self.version)
     }
 }
-
 impl PartialEq for RuntimeVersion {
     fn eq(&self, other: &Self) -> bool {
         self.plugin.name == other.plugin.name && self.version == other.version
+    }
+}
+impl Debug for RuntimeVersion {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{}@{}", self.plugin.name, self.version)
     }
 }
 

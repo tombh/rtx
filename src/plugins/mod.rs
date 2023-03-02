@@ -13,6 +13,7 @@ use itertools::Itertools;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use versions::Versioning;
+use rayon::prelude::*;
 
 pub use script_manager::{Script, ScriptManager};
 
@@ -80,8 +81,8 @@ impl Plugin {
 
     pub fn list() -> Result<Vec<Self>> {
         Ok(file::dir_subdirs(&dirs::PLUGINS)?
-            .iter()
-            .map(Plugin::new)
+            .par_iter()
+            .map(Self::new)
             .collect())
     }
 

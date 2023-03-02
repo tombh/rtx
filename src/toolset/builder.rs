@@ -32,6 +32,7 @@ impl ToolsetBuilder {
         self
     }
 
+    #[tracing::instrument(skip_all)]
     pub fn build(self, config: &Config) -> Toolset {
         let mut toolset = Toolset::default().with_plugins(config.plugins.clone());
         load_config_files(config, &mut toolset);
