@@ -71,7 +71,7 @@ impl Current {
             if versions.is_empty() {
                 continue;
             }
-            for rtv in &versions {
+            for tv in versions {
                 if !rtv.is_installed() {
                     let source = ts.versions.get(rtv.plugin.name()).unwrap().source.clone();
                     warn!(

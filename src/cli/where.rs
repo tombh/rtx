@@ -1,10 +1,11 @@
 use color_eyre::eyre::Result;
 
-use crate::cli::args::runtime::{RuntimeArg, RuntimeArgParser, RuntimeArgVersion};
+use crate::cli::args::runtime::{RuntimeArg, RuntimeArgParser, };
 use crate::cli::command::Command;
 use crate::config::Config;
-use crate::errors::Error::VersionNotInstalled;
+use crate::errors::Error::{PluginNotInstalled, VersionNotInstalled};
 use crate::output::Output;
+use crate::plugins::Plugin;
 use crate::toolset::ToolsetBuilder;
 
 /// Display the installation path for a runtime
@@ -30,11 +31,11 @@ pub struct Where {
 
 impl Command for Where {
     fn run(self, mut config: Config, out: &mut Output) -> Result<()> {
-        let runtime = match self.runtime.version {
-            RuntimeArgVersion::None => match self.asdf_version {
+        let runtime = match self.runtime.tvr {
+            None => match self.asdf_version {
                 Some(version) => self
                     .runtime
-                    .with_version(RuntimeArgVersion::Version(version)),
+                    .with_version(&version),
                 None => self.runtime,
             },
             _ => self.runtime,
@@ -43,14 +44,18 @@ impl Command for Where {
         let ts = ToolsetBuilder::new()
             .with_args(&[runtime.clone()])
             .build(&mut config)?;
-        match ts.resolve_runtime_arg(&runtime) {
-            Some(rtv) if rtv.is_installed() => {
-                rtxprintln!(out, "{}", rtv.install_path.to_string_lossy());
+        let plugin = match config.plugins.get(&runtime.plugin) {
+            Some(plugin) => plugin,
+            None => Err(PluginNotInstalled(runtime.plugin))?,
+        };
+        match runtime.tvr.map(|tvr| tvr.resolve(&config, plugin, Default::default(), false)) {
+            Some(Ok(tv)) if plugin.is_version_installed(&tv) => {
+                rtxprintln!(out, "{}", tv.install_path.to_string_lossy());
                 Ok(())
             }
             _ => Err(VersionNotInstalled(
                 runtime.plugin.to_string(),
-                runtime.version.to_string(),
+                runtime.tvr.map(|tvr| tvr.to_string()).unwrap_or_default(),
             ))?,
         }
     }

@@ -5,6 +5,7 @@ expression: cf.toolset
 Toolset {
     versions: {
         "nodejs": ToolVersionList {
+            plugin_name: "nodejs",
             versions: [
                 ToolVersion {
                     plugin_name: "nodejs",
@@ -22,6 +23,16 @@ Toolset {
                     rtv: None,
                     options: {},
                 },
+            ],
+            requests: [
+                Version(
+                    "16.0.1",
+                    {},
+                ),
+                Version(
+                    "18.0.1",
+                    {},
+                ),
             ],
             source: RtxToml(
                 "/tmp/.rtx.toml",

@@ -9,7 +9,7 @@ use crate::config::config_file::{ConfigFile, ConfigFileType};
 use crate::config::settings::SettingsBuilder;
 use crate::config::{AliasMap, Settings};
 use crate::plugins::{Plugin, PluginName, Plugins};
-use crate::toolset::{ToolSource, ToolVersion, ToolVersionType, Toolset};
+use crate::toolset::{ToolSource, Toolset, ToolVersionRequest};
 
 #[derive(Debug)]
 pub struct LegacyVersionFile {
@@ -91,10 +91,10 @@ impl Display for LegacyVersionFile {
 fn build_toolset(path: &Path, plugin: &str, version: &str) -> Toolset {
     let mut toolset = Toolset::new(ToolSource::LegacyVersionFile(path.to_path_buf()));
     if !version.is_empty() {
-        toolset.add_version(ToolVersion::new(
+        toolset.add_version(ToolVersionRequest::new(
             plugin.to_string(),
-            ToolVersionType::Version(version.to_string()),
-        ));
+            &version,
+        ), Default::default());
     }
     toolset
 }
